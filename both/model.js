@@ -1,10 +1,6 @@
 BModel = function (args) {
 	var self = this;
 
-	if(_.isObject(self.defaults)) {
-		self.set(self.defaults);
-	}
-
 	if(_.isString(args)) {
 		// assuming args is _id
 		self.setId(args);
@@ -12,6 +8,8 @@ BModel = function (args) {
 		// assuming args is hashmap for fields
 		self.set(args);
 	}
+
+	_.isFunction(self.init) && self.init();
 }
 
 BModel.cast = function (obj) {
@@ -43,6 +41,9 @@ BModel.findAllCursor = function () {
 }
 
 _.extend(BModel.prototype, {
+	init: function () {
+		// Utils.warn("Init from BModel");
+	},
 	_setters: {},
 
 	changedFields: {},
@@ -86,13 +87,20 @@ _.extend(BModel.prototype, {
 		return this._collection.findOne(this._id);
 	},
 
+	create: function () {
+		this._id = this._collection.insert({});
+		this._collection.update(this._id, {
+			$set: this.defaults
+		});
+	},
+
 	save: function (_id) {
 		if(_.isString(_id)) {
 			this._id = _id;
 		}
 
 		if(!_.isString(this._id)) {
-			this._id = this._collection.insert({});
+			this.create();
 		}
 
 		this._collection.update(this._id, {

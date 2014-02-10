@@ -31,7 +31,7 @@ Utils.extend = function (parent, protoProps, staticProps) {
   if (protoProps) _.extend(child.prototype, protoProps);
 
   // just in case we need parent
-  child.__super__ = parent.prototype;
+  child.__super__ = child.prototype.__super__ = parent.prototype;
 
   return child;
 }

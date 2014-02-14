@@ -62,6 +62,14 @@ _.extend(BModel.prototype, {
 		}
 	},
 
+	$shallowify: function () {
+		return Utils.shallowify(this);
+	},
+
+	$get: function (key) {
+		return Utils.deepGet(this, key, null);
+	},
+
 	$set: function (key, value) {
 		var self = this;
 
@@ -112,7 +120,34 @@ BModel.extend = function (protoProps, staticProps) {
 	staticProps = staticProps || {};
 	staticProps.$collection = protoProps.$collection;
 
-	var child = Utils.extend(this, protoProps, staticProps);
+	// mostly taken from Backbone.js
+	var child;
+	var parent = this;
+
+	if(protoProps && _.has(protoProps, "constructor")) {
+		child = protoProps.constructor;
+	} else {
+		child = function () {
+			parent.apply(this, arguments);
+		}
+	}
+
+	// Add static properties to the constructor function, if supplied.
+  _.extend(child, parent, staticProps);
+
+  var Surrogate = function() {
+    this.constructor = child;
+  };
+  Surrogate.prototype = parent.prototype;
+
+  // clone parent's prototype with Surrogate
+  child.prototype = new Surrogate;
+
+  // this is where we actually extend the parent
+  if (protoProps) _.extend(child.prototype, protoProps);
+
+  // just in case we need parent
+  child.__super__ = child.prototype.__super__ = parent.prototype;
 
 	var setters = {};
 	_.each(child.prototype.setters, function (setterName, key) {

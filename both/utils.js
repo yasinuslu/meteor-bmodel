@@ -4,34 +4,53 @@ Utils.warn = function (msg) {
 	console.warn(msg);
 }
 
-Utils.extend = function (parent, protoProps, staticProps) {
-	// mostly taken from Backbone.js
-	var child;
+Utils.shallowify = function(src, maxLevel) {
+  if(!_.isObject(src)) {
+    return null;
+  }
 
-	if(protoProps && _.has(protoProps, "constructor")) {
-		child = protoProps.constructor;
-	} else {
-		child = function () {
-			parent.apply(this, arguments);
-		}
-	}
+  maxLevel = maxLevel || 0;
+  var $set = {};
+  // get rid of functions, back-referenced attributes etc...
+  var obj = JSON.parse(JSON.stringify(src));
 
-	// Add static properties to the constructor function, if supplied.
-  _.extend(child, parent, staticProps);
+  var deepWalk = function(obj, parents) {
+    var keys = [];
+    if ( (maxLevel > 0 && parents.length >= maxLevel)
+        || !_.isObject(obj)
+        || (_.isObject(obj)
+        && (keys = _.keys(obj)).length < 1)) {
+      var key = parents.join(".");
+      $set[key] = obj;
+      return;
+    }
 
-  var Surrogate = function() {
-    this.constructor = child;
-  };
-  Surrogate.prototype = parent.prototype;
 
-  // clone parent's prototype with Surrogate
-  child.prototype = new Surrogate;
+    _.each(obj, function(item, key) {
+      var pr = _.clone(parents);
+      pr.push(key);
+      deepWalk(item, pr);
+    });
+  }
 
-  // this is where we actually extend the parent
-  if (protoProps) _.extend(child.prototype, protoProps);
+  deepWalk(obj, []);
 
-  // just in case we need parent
-  child.__super__ = child.prototype.__super__ = parent.prototype;
+  return $set;
+}
 
-  return child;
+Utils.deepGet = function(obj, field, def) {
+  def = def || null;
+  if(!obj) {
+    return def;
+  }
+
+  if(obj[field]) {
+    return obj[field];
+  }
+
+  var keys = field.split(".");
+
+  for (var i = 0; i < keys.length && (obj = obj[keys[i]]); i++);
+
+  return obj || def;
 }

@@ -166,8 +166,12 @@ BModel.extend = function (protoProps, staticProps) {
   child.__super__ = child.prototype.__super__ = parent.prototype;
 
 	var setters = {};
-	_.each(child.prototype.setters, function (setterName, key) {
-		setters[key] = BModel.Setter.get(setterName);
+	_.each(child.prototype.$setters, function (setterName, key) {
+		var setter = setterName;
+		if(_.isString(setter)) {
+			setter = BModel.Setter.get(setterName);
+		}
+		setters[key] = setter;
 	});
 
 	child.$collection.registerModel(child);

@@ -8,15 +8,15 @@ A simple model for meteor that does the job.
 Extend BModel
 
 ```js
-
+TestProducts = new Meteor.Collection("test_products");
 TestProduct = BModel.extend({
-	_collection: new Meteor.Collection("test_products"),
+	$collection: TestProducts,
 
-	defaults: {
-		"img.url": "fdsfsd"
+	$defaults: {
+		"img.url": "Test Image URL"
 	},
 
-	setters: {
+	$setters: {
 		"some.num": "Number",
 		"other.num": "Number"
 	}
@@ -25,30 +25,38 @@ TestProduct = BModel.extend({
 
 ```
 
-Then initialize it:
+Ready to roll:
 
 ```js
 var tp = new TestProduct();
-console.log(tp.get());	// undefined
-console.log(tp.$$changed());	// Object {img.url: "fdsfsd"}
-console.log(tp.set("some.num", "asdfsf").$$changed())	// Object {img.url: "fdsfsd", some.num: 0}
-console.log(tp.set("some.num", "43242").$$changed())	// Object {img.url: "fdsfsd", some.num: 0}
-console.log(tp.set("some.num", "123.3").$$changed())	// Object {img.url: "fdsfsd", some.num: 123.3}
+tp.$set("some.embedded.key");
+tp.$changed();	// Object {some.embedded.key: "Test"}
+tp.$save();
+tp.$changed();	// Object {}
+
+var b = TestProducts.findOne(tp._id);
+console.log(b);
 ```
 
-```js
-tp.save().get();
-```
-
-results in:
+result:
 ```json
 {
-  "_id": "9476s8iZfo57kFZcg",
+  "_id": "rcQwk45uKphPNE33i",
   "img": {
-    "url": "fdsfsd"
+    "test": {
+      "url": "Testt"
+    }
   },
   "some": {
-    "num": 432423
+    "embedded": {
+      "key": "Test"
+    }
   }
 }
+```
+
+It's not all:
+```js
+b.$get("some.embedded.key");		// "Test"
+b.$shallowify();	// {_id: "rcQwk45uKphPNE33i", img.test.url: "Testt", some.embedded.key: "Test"}
 ```

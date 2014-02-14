@@ -49,6 +49,16 @@ _.extend(BModel.prototype, {
 
 	$bind: function (args) {
 		_.extend(this, args);
+
+		return this;
+	},
+
+	// one might misunderstand update
+	$reload: function () {
+		if(this._id)
+			this.$bind(this.$collection.findOne(this._id));
+
+		return this;
 	},
 
 	$setOne: function (key, value) {
@@ -91,6 +101,10 @@ _.extend(BModel.prototype, {
 		this.$collection.update(this._id, {
 			$set: this.$defaults
 		});
+
+		this.$reload();
+
+		return this;
 	},
 
 	$save: function (_id) {
@@ -107,6 +121,8 @@ _.extend(BModel.prototype, {
 		});
 
 		this.$changedFields = {};
+
+		this.$reload();
 
 		return this;
 	},

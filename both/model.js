@@ -1,13 +1,21 @@
 BModel = function (args) {
 	var self = this;
 
-	self.$bind(args);
+	self.$bind(self.$defaults);
+
+	if(_.isString(args))
+		self.$bind(self.$collection.findOne(args));
+	else if (_.isObject(args))
+		self.$bind(args);
 
 	_.isFunction(self.$init) && self.$init();
 }
 
-BModel.cast = function (obj) {
-	// Well this seems a little awkard
+BModel.build = function (obj) {
+	if(obj instanceof BModel) {
+		return obj;
+	}
+
 	return new this(obj);
 }
 
@@ -19,7 +27,7 @@ BModel.findCursor = function (/* args */) {
 	return this.$collection.find.apply(this.$collection, arguments);
 }
 
-BModel.find = function (selector, options, cast) {
+BModel.find = function (selector, options) {
 	return this.findCursor(selector, options).fetch();
 }
 
@@ -111,8 +119,6 @@ _.extend(BModel.prototype, {
 			$set: this.$defaults
 		});
 
-		this.$reload();
-
 		return this;
 	},
 
@@ -131,8 +137,6 @@ _.extend(BModel.prototype, {
 
 		this.$changedFields = {};
 
-		this.$reload();
-
 		return this;
 	},
 
@@ -142,7 +146,6 @@ _.extend(BModel.prototype, {
 
 	$update: function (modifier, options, callback) {
 		this.__static__.update(this._id, modifier, options, callback);
-		this.$reload();
 		return this;
 	}
 });

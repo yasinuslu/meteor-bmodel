@@ -9,6 +9,7 @@ Package.on_use(function (api) {
 	api.add_files("both/utils.js");
 	api.add_files("both/model.js");
 	api.add_files("both/setter.js");
+	api.add_files("both/collection.js");
 
 
 	// api.add_files("test/test_product.js");

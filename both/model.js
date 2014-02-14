@@ -1,39 +1,34 @@
 BModel = function (args) {
 	var self = this;
 
-	if(_.isString(args)) {
-		// assuming args is _id
-		self.setId(args);
-	} else if(_.isObject(args)) {
-		// assuming args is hashmap for fields
-		self.set(args);
-	}
+	self.$bind(args);
 
-	_.isFunction(self.init) && self.init();
+	_.isFunction(self.$init) && self.$init();
 }
 
 BModel.cast = function (obj) {
 	// Well this seems a little awkard
-	return new this(obj._id);
+	return new this(obj);
 }
 
-BModel.findOne = function (selector, options, cast) {
-	var obj = this._collection.findOne(selector, options);
-	return cast ? this.cast(obj) : obj;
+BModel.findOne = function () {
+	return this.$collection.findOne.apply(this.$collection, arguments);
 }
 
 BModel.findCursor = function (/* args */) {
-	return this._collection.find.apply(this._collection, arguments);
+	return this.$collection.find.apply(this.$collection, arguments);
 }
 
 BModel.find = function (selector, options, cast) {
-	var arr = this.findCursor(selector, options).fetch();
-	return cast ? _.map(arr, _.bind(this.cast, this)) : arr;
+	return this.findCursor(selector, options).fetch();
 }
 
-BModel.findAll = function (cast) {
-	var arr = this.findAllCursor().fetch();
-	return cast ? _.map(arr, _.bind(this.cast, this)) : arr;
+BModel.findAll = function () {
+	return this.findAllCursor().fetch();
+}
+
+BModel.remove = function (/* args */) {
+	return this.$collection.remove.apply(this.$collection, arguments);
 }
 
 BModel.findAllCursor = function () {
@@ -41,36 +36,40 @@ BModel.findAllCursor = function () {
 }
 
 _.extend(BModel.prototype, {
-	init: function () {
+	$init: function () {
 		// Utils.warn("Init from BModel");
 	},
-	_setters: {},
+	$setters: {},
 
-	changedFields: {},
+	$changedFields: {},
 
-	changed: function () {
-		return this.changedFields;
+	$changed: function () {
+		return this.$changedFields;
 	},
 
-	_set: function (key, value) {
-		// TODO: some changed hooks would be good
+	$bind: function (args) {
+		_.extend(this, args);
+	},
+
+	$setOne: function (key, value) {
+		// TODO: some $changed hooks would be good
 		// TODO: add an optional argument that can bypass setter
-		var setter = this._setters[key];
+		var setter = this.$setters[key];
 		if(_.isFunction(setter)) {
-			this.changedFields[key] = setter(value);
+			this.$changedFields[key] = setter(value);
 		} else {
-			this.changedFields[key] = value;
+			this.$changedFields[key] = value;
 		}
 	},
 
-	set: function (key, value) {
+	$set: function (key, value) {
 		var self = this;
 
 		if(_.isString(key) && !_.isUndefined(value)) {
-			self._set(key, value);
+			self.$setOne(key, value);
 		} else if(_.isObject(key)) {
 			_.each(key, function (v, k) {
-				self.set(k, v);
+				self.$set(k, v);
 			});
 		} else {
 			Utils.warn("when calling set, key should be a string or object");
@@ -79,43 +78,39 @@ _.extend(BModel.prototype, {
 		return this;
 	},
 
-	setId: function (_id) {
-		this._id = _id;
-	},
-
-	get: function (_id) {
-		return this._collection.findOne(this._id);
-	},
-
-	create: function () {
-		this._id = this._collection.insert({});
-		this._collection.update(this._id, {
-			$set: this.defaults
+	$create: function () {
+		this._id = this.$collection.insert({});
+		this.$collection.update(this._id, {
+			$set: this.$defaults
 		});
 	},
 
-	save: function (_id) {
+	$save: function (_id) {
 		if(_.isString(_id)) {
 			this._id = _id;
 		}
 
 		if(!_.isString(this._id)) {
-			this.create();
+			this.$create();
 		}
 
-		this._collection.update(this._id, {
-			$set: this.changedFields
+		this.$collection.update(this._id, {
+			$set: this.$changedFields
 		});
 
-		this.changedFields = {};
+		this.$changedFields = {};
 
 		return this;
+	},
+
+	$remove: function () {
+		this.$collection.remove(this._id);
 	}
 });
 
 BModel.extend = function (protoProps, staticProps) {
 	staticProps = staticProps || {};
-	staticProps._collection = protoProps._collection;
+	staticProps.$collection = protoProps.$collection;
 
 	var child = Utils.extend(this, protoProps, staticProps);
 
@@ -124,7 +119,8 @@ BModel.extend = function (protoProps, staticProps) {
 		setters[key] = BModel.Setter.get(setterName);
 	});
 
-	child.prototype._setters = setters;
+	child.$collection.registerModel(child);
+	child.prototype.$setters = setters;
 
 	return child;
 }

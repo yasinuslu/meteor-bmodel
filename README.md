@@ -30,10 +30,10 @@ Then initialize it:
 ```js
 var tp = new TestProduct();
 console.log(tp.get());	// undefined
-console.log(tp.changed());	// Object {img.url: "fdsfsd"}
-console.log(tp.set("some.num", "asdfsf").changed())	// Object {img.url: "fdsfsd", some.num: 0}
-console.log(tp.set("some.num", "43242").changed())	// Object {img.url: "fdsfsd", some.num: 0}
-console.log(tp.set("some.num", "123.3").changed())	// Object {img.url: "fdsfsd", some.num: 123.3}
+console.log(tp.$$changed());	// Object {img.url: "fdsfsd"}
+console.log(tp.set("some.num", "asdfsf").$$changed())	// Object {img.url: "fdsfsd", some.num: 0}
+console.log(tp.set("some.num", "43242").$$changed())	// Object {img.url: "fdsfsd", some.num: 0}
+console.log(tp.set("some.num", "123.3").$$changed())	// Object {img.url: "fdsfsd", some.num: 123.3}
 ```
 
 ```js

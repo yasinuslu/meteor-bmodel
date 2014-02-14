@@ -1,10 +1,10 @@
 BModel.Setter = {
-	_setters: {},
+	$setters: {},
 	add: function (name, fn) {
-		this._setters[name] = fn;
+		this.$setters[name] = fn;
 	},
 	get: function (name) {
-		return this._setters[name];
+		return this.$setters[name];
 	}
 }
 

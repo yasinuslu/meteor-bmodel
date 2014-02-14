@@ -35,6 +35,10 @@ BModel.findAllCursor = function () {
 	return this.findCursor({});
 }
 
+BModel.update = function (query, modifier, options, callback) {
+	return this.$collection.update(query, modifier, options, callback);
+}
+
 _.extend(BModel.prototype, {
 	$init: function () {
 		// Utils.warn("Init from BModel");
@@ -53,7 +57,12 @@ _.extend(BModel.prototype, {
 		return this;
 	},
 
-	// one might misunderstand update
+	/*
+		there is no need for Deps methods for now.
+		Model instances will be created in a reactive context anyway.
+		Which are handled another places.
+		We should be careful for this method, it could cause infinite reactivity
+	*/
 	$reload: function () {
 		if(this._id)
 			this.$bind(this.$collection.findOne(this._id));
@@ -129,6 +138,12 @@ _.extend(BModel.prototype, {
 
 	$remove: function () {
 		this.$collection.remove(this._id);
+	},
+
+	$update: function (modifier, options, callback) {
+		this.__static__.update(this._id, modifier, options, callback);
+		this.$reload();
+		return this;
 	}
 });
 
@@ -164,6 +179,7 @@ BModel.extend = function (protoProps, staticProps) {
 
   // just in case we need parent
   child.__super__ = child.prototype.__super__ = parent.prototype;
+  child.prototype.__static__ = child;
 
 	var setters = {};
 	_.each(child.prototype.$setters, function (setterName, key) {

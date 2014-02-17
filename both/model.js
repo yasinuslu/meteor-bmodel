@@ -81,11 +81,15 @@ _.extend(BModel.prototype, {
 	$setOne: function (key, value) {
 		// TODO: some $changed hooks would be good
 		// TODO: add an optional argument that can bypass setter
+		if(_.isFunction(value)) {
+			return;
+		}
+
 		var setter = this.$setters[key];
 		if(_.isFunction(setter)) {
-			this.$changedFields[key] = setter(value);
+			this[key] = this.$changedFields[key] = setter(value);
 		} else {
-			this.$changedFields[key] = value;
+			this[key] = this.$changedFields[key] = value;
 		}
 	},
 
@@ -147,6 +151,10 @@ _.extend(BModel.prototype, {
 	$update: function (modifier, options, callback) {
 		this.__static__.update(this._id, modifier, options, callback);
 		return this;
+	},
+
+	$raw: function () {
+		return this.$collection.findOne(this._id, null, true);
 	}
 });
 

@@ -155,6 +155,14 @@ _.extend(BModel.prototype, {
 
 	$raw: function () {
 		return this.$collection.findOne(this._id, null, true);
+	},
+
+	$clone: function () {
+		var obj = new this.__static__();
+		var dbObj = _.omit(this.$raw(), "_id");
+		obj.$set(dbObj);
+
+		return obj;
 	}
 });
 

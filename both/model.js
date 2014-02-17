@@ -1,12 +1,12 @@
 BModel = function (args) {
 	var self = this;
 
-	self.$bind(self.$defaults);
+	self.$extend(self.$defaults);
 
 	if(_.isString(args))
-		self.$bind(self.$collection.findOne(args));
+		self.$extend(self.$collection.findOne(args));
 	else if (_.isObject(args))
-		self.$bind(args);
+		self.$extend(args);
 
 	_.isFunction(self.$init) && self.$init();
 }
@@ -59,7 +59,7 @@ _.extend(BModel.prototype, {
 		return this.$changedFields;
 	},
 
-	$bind: function (args) {
+	$extend: function (args) {
 		_.extend(this, args);
 
 		return this;
@@ -73,7 +73,7 @@ _.extend(BModel.prototype, {
 	*/
 	$reload: function () {
 		if(this._id)
-			this.$bind(this.$collection.findOne(this._id));
+			this.$extend(this.$collection.findOne(this._id));
 
 		return this;
 	},

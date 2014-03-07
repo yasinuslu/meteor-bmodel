@@ -1,12 +1,30 @@
-Utils = {}
+Utils = {};
+
+Utils.Log = {
+  _logs: {},
+
+  callLog: function (key, message) {
+    var log = this._logs[key] = this._logs[key] || {};
+    _.extend(log, {
+      count: ++log.count || 1,
+      message: message || key
+    })
+
+    console.log(key, " count: ", log.count);
+  }
+};
 
 Utils.warn = function (msg) {
 	console.warn(msg);
 }
 
-Utils.shallowify = function(src, maxLevel) {
+Utils.collapse = function(src, maxLevel) {
   if(!_.isObject(src)) {
     return null;
+  }
+
+  if(this.debugMode) {
+    debugger
   }
 
   maxLevel = maxLevel || 0;
@@ -17,11 +35,16 @@ Utils.shallowify = function(src, maxLevel) {
   var deepWalk = function(obj, parents) {
     var keys = [];
     if ( (maxLevel > 0 && parents.length >= maxLevel)
-        || !_.isObject(obj)
-        || (_.isObject(obj)
-        && (keys = _.keys(obj)).length < 1)) {
+        ||  !_.isObject(obj)
+        ||  (
+            _.isObject(obj)
+            && (keys = _.keys(obj)).length < 1)
+            )
+    {
       var key = parents.join(".");
-      $set[key] = obj;
+      if(!_.isEmpty(key)){
+        $set[key] = obj;
+      }
       return;
     }
 
@@ -36,6 +59,28 @@ Utils.shallowify = function(src, maxLevel) {
   deepWalk(obj, []);
 
   return $set;
+}
+
+Utils.expand = function (sourceObj) {
+  var sourceClone = _.clone(sourceObj);
+  _.each(sourceClone, function (val, field) {
+    var keys = field.split(".");
+    if(keys.length == 1) {
+      return;
+    }
+
+    var i;
+    var obj = sourceClone;
+
+    for (i = 0; i < keys.length - 1; i++) {
+      obj = obj[keys[i]] = obj[keys[i]] || {};
+    }
+
+    obj[keys[i]] = val;
+    delete sourceClone[field];
+  });
+
+  return sourceClone;
 }
 
 Utils.deepGet = function(obj, field, def) {
@@ -53,4 +98,14 @@ Utils.deepGet = function(obj, field, def) {
   for (var i = 0; i < keys.length && (obj = obj[keys[i]]); i++);
 
   return obj || def;
+}
+
+Utils.deepExtend = function (initial, extra) {
+  var collapsed = Utils.collapse(initial);
+
+  _.extend(collapsed, Utils.collapse(extra));
+
+  _.extend(initial, Utils.expand(collapsed));
+
+  return initial;
 }

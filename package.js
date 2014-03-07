@@ -13,7 +13,7 @@ Package.on_use(function (api) {
 
 
 	// api.add_files("test/test_product.js");
-	api.export("TestProduct");
-
+	// api.export("TestProduct");
 	api.export("BModel");
+	api.export("Utils");
 });

@@ -59,8 +59,17 @@ _.extend(BModel.prototype, {
 		return this.$changedFields;
 	},
 
-	$extend: function (args) {
-		_.extend(this, args);
+	$extend: function (args, shallow) {
+		if(!args) {
+			return this;
+		}
+
+		// Utils.Log.callLog("model.instance.extend");
+
+		if(shallow)
+			_.extend(this, args);
+		else
+			Utils.deepExtend(this, args);
 
 		return this;
 	},
@@ -94,7 +103,7 @@ _.extend(BModel.prototype, {
 	},
 
 	$shallowify: function () {
-		return Utils.shallowify(this);
+		return Utils.collapse(this);
 	},
 
 	$get: function (key) {
@@ -197,7 +206,10 @@ BModel.extend = function (protoProps, staticProps) {
   if (protoProps) _.extend(child.prototype, protoProps);
 
   // just in case we need parent
-  child.__super__ = child.prototype.__super__ = parent.prototype;
+  // calling __super__.{method} proved to be dangerous
+  // TODO: figure out a better inheritance model
+  child.__super__ = parent;
+  child.prototype.__super__ = parent.prototype;
   child.prototype.__static__ = child;
 
 	var setters = {};
@@ -209,7 +221,10 @@ BModel.extend = function (protoProps, staticProps) {
 		setters[key] = setter;
 	});
 
-	child.$collection.registerModel(child);
+	if(child.$collection && _.isFunction(child.$collection.registerModel)) {
+		child.$collection.registerModel(child);
+	}
+
 	child.prototype.$setters = setters;
 
 	return child;

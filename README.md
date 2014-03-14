@@ -58,7 +58,7 @@ result:
 It's not all:
 ```js
 b.$get("some.embedded.key");		// "Test"
-b.$shallowify();	// {_id: "rcQwk45uKphPNE33i", img.test.url: "Testt", some.embedded.key: "Test"}
+b.$collapse();	// {_id: "rcQwk45uKphPNE33i", img.test.url: "Testt", some.embedded.key: "Test"}
 ```
 
 And there are setters:

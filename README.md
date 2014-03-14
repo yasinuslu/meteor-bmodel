@@ -92,3 +92,6 @@ TestProduct = BModel.extend({
 	}
 });
 ```
+
+TODO
+- Handle reactivity with care. Implement onInvalidate so that changed fields won't be overriden on Deps flush.

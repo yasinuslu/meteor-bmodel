@@ -15,7 +15,7 @@ Utils.Log = {
 };
 
 Utils.warn = function (msg) {
-	console.warn(msg);
+  console.warn(msg);
 }
 
 Utils.collapse = function(src, maxLevel) {

@@ -8,12 +8,12 @@ A simple model for meteor that does the job.
 Extend BModel
 
 ```js
-TestProducts = new Meteor.Collection("test_products");
-TestProduct = BModel.extend({
-	$collection: TestProducts,
+Products = new Meteor.Collection("products");
+Product = BModel.extend({
+	$collection: Products,
 
-	$defaults: {
-		"img.url": "Test Image URL"
+  $defaults: {
+		"img.url": "/img/foo.png"
 	},
 
 	$setters: {
@@ -28,14 +28,14 @@ TestProduct = BModel.extend({
 Ready to roll:
 
 ```js
-var tp = new TestProduct();
-tp.$set("some.embedded.key", "Test");
-tp.$changed();	// Object {some.embedded.key: "Test"}
-tp.$save();
-tp.$changed();	// Object {}
+var p = new Product();
+p.$set("some.embedded.key", "Test");
+p.$changed();	// Object {some.embedded.key: "Test"}
+p.$save();
+p.$changed();	// Object {}
 
-var b = TestProducts.findOne(tp._id);
-console.log(b);
+var p = Products.findOne(tp._id);
+console.log(p);
 ```
 
 result:
@@ -53,6 +53,16 @@ result:
     }
   }
 }
+```
+
+Casts all database objects to BModel instance:
+
+```js
+var product = Products.findOne();
+product.$set("some.embedded.key", "Test");
+product.$save();
+
+product.$get("some.embedded.key");  // => Test
 ```
 
 It's not all:

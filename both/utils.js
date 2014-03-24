@@ -1,4 +1,4 @@
-Utils = {};
+BModelUtils = Utils = {};
 
 Utils.Log = {
   _logs: {},

@@ -19,6 +19,8 @@ var obj = {
   }
 }
 
+var Utils = BModelUtils;
+
 var collapsed = Utils.collapse(obj);
 var expanded = Utils.expand(obj);
 

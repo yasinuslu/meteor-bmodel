@@ -12,7 +12,7 @@ Package.on_use(function (api) {
   api.add_files("both/collection.js");
 
   api.export("BModel");
-  api.export("Utils");
+  api.export("BModelUtils");
 });
 
 Package.on_test(function (api) {

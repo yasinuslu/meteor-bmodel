@@ -83,6 +83,20 @@ Utils.expand = function (sourceObj) {
   return sourceClone;
 }
 
+Utils.deepSet = function (obj, field, val) {
+  if(!_.isObject(obj) || !_.isString(field)) {
+    return;
+  }
+
+  var keys = field.split(".");
+
+  for (i = 0; i < keys.length - 1; i++) {
+    obj = obj[keys[i]] = obj[keys[i]] || {};
+  }
+
+  obj[keys[i]] = val;
+}
+
 Utils.deepGet = function(obj, field, def) {
   def = def || null;
   if(!obj) {
@@ -98,14 +112,4 @@ Utils.deepGet = function(obj, field, def) {
   for (var i = 0; i < keys.length && (obj = obj[keys[i]]); i++);
 
   return obj || def;
-}
-
-Utils.deepExtend = function (initial, extra) {
-  var collapsed = Utils.collapse(initial);
-
-  _.extend(collapsed, Utils.collapse(extra));
-
-  _.extend(initial, Utils.expand(collapsed));
-
-  return initial;
 }

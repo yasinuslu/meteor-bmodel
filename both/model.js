@@ -11,6 +11,34 @@ BModel = function (args) {
   _.isFunction(self.$init) && self.$init();
 }
 
+// a method that reactively gets given object
+BModel.get = function (oldObject, _id) {
+  // IR checks EJSON.equals between oldObject and obj
+  // so we need to return new instance
+  // EJSON.equals first checks for references, then it diffs deeply
+  var obj = new this();
+  if(_id) {
+    var dbObj = this.$collection.findOne(_id, null, true);
+    if(!dbObj) {
+      return null;  // for not found on IR
+    }
+    obj.$extend(dbObj);
+  }
+
+  if(oldObject) {
+    obj.$dep = oldObject.$dep;
+    obj.$changedFields = oldObject.$changedFields;
+    obj.$extend(Utils.expand(oldObject.$changedFields));
+  }
+
+  if(_.isUndefined(obj.$dep)) {
+    obj.$dep = new Deps.Dependency();
+  }
+
+  obj.$dep.depend();
+  return obj;
+}
+
 BModel.build = function (obj) {
   if(obj instanceof BModel) {
     return obj;
@@ -67,9 +95,9 @@ _.extend(BModel.prototype, {
     // Utils.Log.callLog("model.instance.extend");
 
     if(shallow)
-      _.extend(this, args);
+      $.extend(this, args);
     else
-      Utils.deepExtend(this, args);
+      $.extend(true, this, args);
 
     return this;
   },
@@ -96,9 +124,9 @@ _.extend(BModel.prototype, {
 
     var setter = this.$setters[key];
     if(_.isFunction(setter)) {
-      this[key] = this.$changedFields[key] = setter(value);
+      this.$changedFields[key] = setter(value);
     } else {
-      this[key] = this.$changedFields[key] = value;
+      this.$changedFields[key] = value;
     }
   },
 
@@ -121,6 +149,12 @@ _.extend(BModel.prototype, {
       });
     } else {
       Utils.warn("when calling set, key should be a string or object");
+    }
+
+    // do we have a dependency ?
+    // if we don't have a dependency, we don't need to be reactive :)
+    if(self.$dep) {
+      self.$dep.changed();
     }
 
     return this;

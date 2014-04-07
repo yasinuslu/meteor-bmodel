@@ -29,7 +29,7 @@ Utils.collapse = function(src, maxLevel) {
 
   maxLevel = maxLevel || 0;
   var $set = {};
-  // get rid of functions, back-referenced attributes etc...
+  // get rid of EJSON incompatible types
   var obj = EJSON.parse(EJSON.stringify(src));
 
   var deepWalk = function(obj, parents) {

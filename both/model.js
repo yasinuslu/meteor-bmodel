@@ -162,6 +162,11 @@ _.extend(BModel.prototype, {
 
   $create: function () {
     this._id = this.$collection.insert({});
+
+    if(_.isFunction(this.$onCreate)) {
+      this.$onCreate();
+    }
+
     this.$collection.update(this._id, {
       $set: this.$defaults
     });
@@ -176,6 +181,10 @@ _.extend(BModel.prototype, {
 
     if(!_.isString(this._id)) {
       this.$create();
+    }
+
+    if(_.isFunction(this.$onSave)) {
+      this.$onSave();
     }
 
     this.$collection.update(this._id, {

@@ -187,6 +187,8 @@ _.extend(BModel.prototype, {
       this.$onSave();
     }
 
+    this.$changedFields = Utils.collapse(this.$changedFields);
+
     this.$collection.update(this._id, {
       $set: this.$changedFields
     });

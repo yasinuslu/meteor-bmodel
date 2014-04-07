@@ -30,7 +30,7 @@ Utils.collapse = function(src, maxLevel) {
   maxLevel = maxLevel || 0;
   var $set = {};
   // get rid of functions, back-referenced attributes etc...
-  var obj = JSON.parse(JSON.stringify(src));
+  var obj = EJSON.parse(EJSON.stringify(src));
 
   var deepWalk = function(obj, parents) {
     var keys = [];
@@ -50,7 +50,7 @@ Utils.collapse = function(src, maxLevel) {
 
 
     _.each(obj, function(item, key) {
-      var pr = _.clone(parents);
+      var pr = EJSON.clone(parents);
       pr.push(key);
       deepWalk(item, pr);
     });

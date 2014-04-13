@@ -1,6 +1,7 @@
 BModel = function (args) {
   var self = this;
 
+  self.$changedFields = {};
   self.$extend(self.$defaults);
 
   if(_.isString(args))
@@ -77,11 +78,9 @@ BModel.update = function (query, modifier, options, callback) {
 
 _.extend(BModel.prototype, {
   $init: function () {
-    // Utils.warn("Init from BModel");
+
   },
   $setters: {},
-
-  $changedFields: {},
 
   $changed: function () {
     return this.$changedFields;
@@ -263,12 +262,8 @@ BModel.extend = function (protoProps, staticProps) {
     if(_.isString(setter)) {
       setter = BModel.Setter.get(setterName);
     }
-    setters[key] = setter;
+    setters[key] = _.bind(setter, child);
   });
-
-  if(child.$collection && _.isFunction(child.$collection.registerModel)) {
-    child.$collection.registerModel(child);
-  }
 
   child.prototype.$setters = setters;
 

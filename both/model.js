@@ -2,7 +2,7 @@ BModel = function (args) {
   var self = this;
 
   self.$changedFields = {};
-  self.$extend(self.$defaults);
+  self.$extend(self.$defaults, false, true);
 
   if(_.isString(args))
     self.$extend(self.$collection.findOne(args));
@@ -86,9 +86,13 @@ _.extend(BModel.prototype, {
     return this.$changedFields;
   },
 
-  $extend: function (args, shallow) {
+  $extend: function (args, shallow, expand) {
     if(!args) {
       return this;
+    }
+
+    if(expand) {
+      args = Utils.expand(args);
     }
 
     // Utils.Log.callLog("model.instance.extend");

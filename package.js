@@ -6,6 +6,7 @@ Package.on_use(function (api) {
   var both = ["client", "server"];
   api.use(["mongo-livedata", "underscore"], both);
 
+  api.add_files("both/lodash.compat.js");
   api.add_files("both/utils.js");
   api.add_files("both/model.js");
   api.add_files("both/setter.js");

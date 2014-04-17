@@ -98,9 +98,9 @@ _.extend(BModel.prototype, {
     // Utils.Log.callLog("model.instance.extend");
 
     if(shallow)
-      $.extend(this, args);
+      _lodash.extend(this, args);
     else
-      $.extend(true, this, args);
+      _lodash.merge(this, args);
 
     return this;
   },

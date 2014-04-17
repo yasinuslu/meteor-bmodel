@@ -28,7 +28,7 @@ BModel.get = function (oldObject, _id) {
 
   if(oldObject) {
     obj.$dep = oldObject.$dep;
-    obj.$changedFields = oldObject.$changedFields;
+    obj.$changedFields = oldObject.$changedFields || {};
     obj.$extend(Utils.expand(oldObject.$changedFields));
   }
 

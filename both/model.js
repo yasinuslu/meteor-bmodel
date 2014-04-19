@@ -12,6 +12,8 @@ BModel = function (args) {
   _.isFunction(self.$init) && self.$init();
 }
 
+BModel._models = {};
+
 // a method that reactively gets given object
 BModel.get = function (oldObject, _id) {
   // IR checks EJSON.equals between oldObject and obj
@@ -64,16 +66,18 @@ BModel.findAll = function () {
   return this.findAllCursor().fetch();
 }
 
-BModel.remove = function (/* args */) {
-  return this.$collection.remove.apply(this.$collection, arguments);
-}
-
 BModel.findAllCursor = function () {
   return this.findCursor({});
 }
 
-BModel.update = function (query, modifier, options, callback) {
-  return this.$collection.update(query, modifier, options, callback);
+BModel.remove = function (where, selector, callback) {
+  where = where || "both";
+  return Meteor.call("bmodel/remove/" + where, this.$name, selector, callback);
+}
+
+BModel.upsert = function (where, selector, modifier, options, callback) {
+  where = where || "both";
+  return Meteor.call("bmodel/upsert/" + where, this.$name, selector, modifier, options, callback);
 }
 
 _.extend(BModel.prototype, {
@@ -163,46 +167,49 @@ _.extend(BModel.prototype, {
     return this;
   },
 
-  $create: function () {
-    this._id = this.$collection.insert({});
+  $save: function (where, fn) {
+    where = where || "both";
+    var self = this;
 
-    if(_.isFunction(this.$onCreate)) {
-      this.$onCreate();
+    var fields = {};
+
+    if(_.isEmpty(self._id)) {
+      if(_.isFunction(self.$onCreate)) {
+        self.$onCreate();
+      }
+
+      _lodash.merge(fields, self.$defaults);
     }
 
-    this.$collection.update(this._id, {
-      $set: this.$defaults
+    if(_.isFunction(self.$onSave)) {
+      self.$onSave();
+    }
+
+    _lodash.merge(fields, self.$changedFields);
+
+    fields = Utils.collapse(fields);
+
+    self.__static__.upsert(where, self._id, {
+      $set: fields
+    }, {}, function (err, ret) {
+      if(!err) {
+        self.$changedFields = {};
+      }
+
+      if(ret.insertedId) {
+        self._id = ret.insertedId;
+      }
+
+      if(_.isFunction(fn)) {
+        fn.call(self, err);
+      }
     });
 
-    return this;
+    return self;
   },
 
-  $save: function (_id) {
-    if(_.isString(_id)) {
-      this._id = _id;
-    }
-
-    if(!_.isString(this._id)) {
-      this.$create();
-    }
-
-    if(_.isFunction(this.$onSave)) {
-      this.$onSave();
-    }
-
-    this.$changedFields = Utils.collapse(this.$changedFields);
-
-    this.$collection.update(this._id, {
-      $set: this.$changedFields
-    });
-
-    this.$changedFields = {};
-
-    return this;
-  },
-
-  $remove: function () {
-    this.$collection.remove(this._id);
+  $remove: function (where) {
+    this.__static__.remove(where, this._id);
   },
 
   $update: function (modifier, options, callback) {
@@ -226,6 +233,7 @@ _.extend(BModel.prototype, {
 BModel.extend = function (protoProps, staticProps) {
   staticProps = staticProps || {};
   staticProps.$collection = protoProps.$collection;
+  staticProps.$name = protoProps.$name;
 
   // mostly taken from Backbone.js
   var child;
@@ -271,5 +279,6 @@ BModel.extend = function (protoProps, staticProps) {
 
   child.prototype.$setters = setters;
 
+  BModel._models[child.$name] = child;
   return child;
 }

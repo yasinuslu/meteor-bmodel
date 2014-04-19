@@ -11,6 +11,8 @@ Package.on_use(function (api) {
   api.add_files("both/model.js");
   api.add_files("both/setter.js");
 
+  api.add_files("both/methods.js");
+
   api.export("BModel");
   api.export("BModelUtils");
 });

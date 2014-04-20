@@ -138,7 +138,14 @@ _.extend(BModel.prototype, {
   },
 
   $get: function (key) {
-    return Utils.deepGet(this, key, null);
+    var setter = this.$setters[key];
+    var value = Utils.deepGet(this, key, null);
+
+    if(_.isFunction(setter)) {
+      return setter(value);
+    } else {
+      return value;
+    }
   },
 
   $set: function (key, value) {

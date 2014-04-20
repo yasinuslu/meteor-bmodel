@@ -1,6 +1,7 @@
 BModel = function (args) {
   var self = this;
 
+  self.$defaults = EJSON.clone(self.__static__.$defaults) || {};
   self.$changedFields = {};
   self.$extend(self.$defaults, false, true);
 
@@ -176,6 +177,8 @@ _.extend(BModel.prototype, {
     if(_.isFunction(this.$onCreate)) {
       this.$onCreate();
     }
+
+    this.$defaults = Utils.collapse(this.$defaults);
 
     this.$collection.update(this._id, {
       $set: this.$defaults

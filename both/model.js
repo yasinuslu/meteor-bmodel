@@ -184,6 +184,8 @@ _.extend(BModel.prototype, {
       $set: this.$defaults
     });
 
+    this.$extend(this.$defaults, false, true);
+
     return this;
   },
 
@@ -205,6 +207,8 @@ _.extend(BModel.prototype, {
     this.$collection.update(this._id, {
       $set: this.$changedFields
     });
+
+    this.$extend(this.$changedFields, false, true);
 
     this.$changedFields = {};
 

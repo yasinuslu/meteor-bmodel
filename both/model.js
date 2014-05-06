@@ -18,9 +18,10 @@ BModel.get = function (oldObject, _id) {
   // IR checks EJSON.equals between oldObject and obj
   // so we need to return new instance
   // EJSON.equals first checks for references, then it diffs deeply
+
   var obj = new this();
   if(_id) {
-    var dbObj = this.$collection.findOne(_id, null, true);
+    var dbObj = this.$collection.findOne(_id);
     if(!dbObj) {
       return null;  // for not found on IR
     }
@@ -225,7 +226,7 @@ _.extend(BModel.prototype, {
   },
 
   $raw: function () {
-    return this.$collection.findOne(this._id, null, true);
+    return this.$collection.findOne(this._id);
   },
 
   $clone: function () {

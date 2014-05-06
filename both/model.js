@@ -175,9 +175,7 @@ _.extend(BModel.prototype, {
   $create: function () {
     this._id = this.$collection.insert({});
 
-    if(_.isFunction(this.$onCreate)) {
-      this.$onCreate();
-    }
+    this._$onCreate();
 
     this.$defaults = Utils.collapse(this.$defaults);
 
@@ -199,9 +197,7 @@ _.extend(BModel.prototype, {
       this.$create();
     }
 
-    if(_.isFunction(this.$onSave)) {
-      this.$onSave();
-    }
+    this._$onSave();
 
     this.$changedFields = Utils.collapse(this.$changedFields);
 
@@ -235,7 +231,33 @@ _.extend(BModel.prototype, {
     obj.$set(dbObj);
 
     return obj;
-  }
+  },
+
+  _$onCreate: function () {
+    var obj = this;
+
+    while(obj && obj.$name !== "BModel-master") {
+      if(obj.$onCreate) {
+        obj.$onCreate.apply(this);
+      }
+
+      obj = obj.__super__;
+    }
+  },
+
+  _$onSave: function () {
+    var obj = this;
+
+    while(obj && obj.$name !== "BModel-master") {
+      if(obj.$onSave) {
+        obj.$onSave.apply(this);
+      }
+
+      obj = obj.__super__;
+    }
+  },
+
+  $name: "BModel-master"
 });
 
 BModel.extend = function (protoProps, staticProps) {

@@ -163,6 +163,11 @@ _.extend(BModel.prototype, {
       Utils.warn("when calling set, key should be a string or object");
     }
 
+    var changed = Utils.collapse(this.$changedFields);
+    this.$extend(changed, false, true);
+
+    this._bmodel_update = new Date();
+
     // do we have a dependency ?
     // if we don't have a dependency, we don't need to be reactive :)
     if(self.$dep) {

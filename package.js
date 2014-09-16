@@ -1,10 +1,10 @@
 Package.describe({
   summary: 'A simple model that does the job.',
-  version: "0.1.5",
+  version: "0.1.6",
   git: "https://github.com/yasinuslu/meteor-bmodel.git"
 });
 
-Package.onUse(function(api) {
+Package.on_use(function(api) {
   api.versionsFrom("METEOR@0.9.0");
   var both = ["client", "server"];
   api.use(["mongo-livedata", "underscore", "ejson"], both);
@@ -18,7 +18,7 @@ Package.onUse(function(api) {
   api.export("BModelUtils", both);
 });
 
-Package.onTest(function(api) {
+Package.on_test(function(api) {
   api.use(["yasinuslu:bmodel", "tinytest", "test-helpers", "underscore"]);
   api.addFiles("tests/utils.js");
 });

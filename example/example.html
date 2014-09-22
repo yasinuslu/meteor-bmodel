@@ -1,0 +1,20 @@
+<head>
+  <title>example</title>
+</head>
+
+<body>
+  <h1>Welcome to Meteor!</h1>
+
+  {{> hello}}
+</body>
+
+<template name="hello">
+  <button>Click Me</button>
+  {{#each products}}
+    <div class="product">
+      {{title}}
+
+      <br>
+    </div>
+  {{/each}}
+</template>

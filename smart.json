@@ -1,8 +1,0 @@
-{
-  "name": "bmodel",
-  "description": "A simple model for meteor inspired by https://github.com/tmeasday/meteor-models",
-  "homepage": "https://github.com/yasinuslu/meteor-bmodel",
-  "author": "Yasin Uslu(https://github.com/yasinuslu)",
-  "version": "0.1.4",
-  "git": "https://github.com/yasinuslu/meteor-bmodel.git"
-}

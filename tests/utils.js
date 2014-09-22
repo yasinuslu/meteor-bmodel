@@ -37,19 +37,3 @@ Tinytest.add("Utils - collapse", function (test) {
 Tinytest.add("Utils - expand", function (test) {
   test.equal(expanded, obj, "simple objects shouldn't change after collapse - expand");
 });
-
-Tinytest.add("Utils - deepExtend", function (test) {
-  var myObj = _.clone(obj);
-  Utils.deepExtend(myObj, {
-    "a.a.c": "a.a.c",
-    a: {
-      b: {
-        a: "a.b.a-extended"
-      }
-    }
-  });
-
-  test.equal(Utils.deepGet(myObj, "a.a.c"), "a.a.c", "should be able to extend with dot notation");
-  test.equal(Utils.deepGet(myObj, "a.b.a"), "a.b.a-extended", "should be able to extend with embedded objects");
-  test.equal(Utils.deepGet(myObj, "a.a.a"), "a.a.a", "shouldn't damage original data on extended object");
-});

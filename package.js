@@ -7,12 +7,13 @@ Package.describe({
 Package.on_use(function(api) {
   api.versionsFrom("METEOR@0.9.0");
   var both = ["client", "server"];
-  api.use(["mongo-livedata", "underscore", "ejson"], both);
+  api.use(["mongo-livedata", "underscore", "ejson", 'reactive-dict'], both);
 
   api.addFiles("lib/both/lodash.compat.js");
   api.addFiles("lib/both/utils.js");
-  api.addFiles("lib/both/model.js");
-  api.addFiles("lib/both/setter.js");
+  // api.addFiles("lib/both/model.js");
+  api.addFiles("lib/both/new_model.js");
+  // api.addFiles("lib/both/setter.js");
 
   api.export("BModel", both);
   api.export("BModelUtils", both);
@@ -21,4 +22,5 @@ Package.on_use(function(api) {
 Package.on_test(function(api) {
   api.use(["yasinuslu:bmodel", "tinytest", "test-helpers", "underscore"]);
   api.addFiles("tests/utils.js");
+  api.addFiles("tests/model_inheritance.js");
 });
